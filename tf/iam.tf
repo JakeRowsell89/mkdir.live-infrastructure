@@ -78,7 +78,16 @@ resource "aws_iam_role_policy" "lambda_presign_urls" {
           "ec2:DescribeNetworkInterface"
         ],
         "Resource" = "*"
-      }
+      },
+      {
+        "Action" = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        "Resource" = "arn:aws:logs:*:*:*"
+        "Effect"   = "Allow"
+      },
     ]
   })
 }
@@ -112,6 +121,45 @@ resource "aws_iam_role_policy" "lambda_create_lambdas" {
           "ec2:DeleteNetworkInterface",
           "ec2:DescribeNetworkInterface"
         ],
+        "Resource" = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role" "cloudwatch_logs" {
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "apigateway.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "cloudwatch_allow_logging" {
+  name = "cloudwatch_allow_logging"
+  role = aws_iam_role.cloudwatch_logs.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        "Effect" = "Allow"
+        "Action" = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:DescribeLogGroups",
+          "logs:DescribeLogStreams",
+          "logs:PutLogEvents",
+          "logs:GetLogEvents",
+          "logs:FilterLogEvents",
+        ]
         "Resource" = "*"
       }
     ]

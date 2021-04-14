@@ -1,0 +1,22 @@
+{
+    "detail": {
+      "eventName": [
+        "PutObject",
+        "CopyObject"
+      ],
+      "eventSource": [
+        "s3.amazonaws.com"
+      ],
+      "requestParameters": {
+        "bucketName": [
+          "${bucket_name}"
+        ]
+      }
+    },
+    "detail-type": [
+      "AWS API Call via CloudTrail"
+    ],
+    "source": [
+      "aws.s3"
+    ]
+  }
