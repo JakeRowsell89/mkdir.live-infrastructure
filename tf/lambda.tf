@@ -5,6 +5,7 @@ resource "aws_lambda_function" "get_presigned_url" {
   handler          = "presign-urls/index.handler"
   source_code_hash = filebase64sha256("./lambdas/presign-urls.zip")
   runtime          = "nodejs14.x"
+  timeout = 10
   depends_on = [
     aws_cloudwatch_log_group.lambda_get_presigned_url
   ]
