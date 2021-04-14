@@ -15,9 +15,16 @@ resource "aws_s3_bucket" "uploads" {
             "Action": [
                 "s3:GetObject"
             ],
-            "Resource": [
-                "arn:aws:s3:::mkdir.live-uploads/*"
-            ]
+            "Resource": "arn:aws:s3:::mkdir.live-uploads/*"
+        },
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "apigateway.amazonaws.com"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::mkdir.live-uploads/*"
         }
     ]
 }
