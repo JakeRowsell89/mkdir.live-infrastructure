@@ -1,5 +1,10 @@
 resource "aws_s3_bucket" "uploads" {
   bucket = "mkdir.live-uploads"
+
+  logging {
+    target_bucket = aws_s3_bucket.cloudtrail.id
+    target_prefix = "mkdir.live-uploads/"
+  }
   policy = <<POLICY
 {
     "Version": "2012-10-17",
@@ -84,6 +89,7 @@ POLICY
 
 resource "aws_s3_bucket" "cloudtrail" {
   bucket = "mkdir.live-cloudtrail"
+  acl    = "log-delivery-write"
   policy = <<POLICY
 {
     "Version": "2012-10-17",
@@ -103,7 +109,10 @@ resource "aws_s3_bucket" "cloudtrail" {
             "Principal": {
                 "Service": "cloudtrail.amazonaws.com"
             },
-            "Action": "s3:PutObject",
+            "Action": [
+                "s3:PutObject",
+                "s3:PutObjectACL"
+            ],
             "Resource": "arn:aws:s3:::mkdir.live-cloudtrail/AWSLogs/236744700502/*",
             "Condition": {
                 "StringEquals": {

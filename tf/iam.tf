@@ -144,7 +144,10 @@ resource "aws_iam_role" "cloudwatch_logs" {
         Effect = "Allow"
         Sid    = ""
         Principal = {
-          Service = "apigateway.amazonaws.com"
+          Service = [
+            "apigateway.amazonaws.com",
+            "cloudtrail.amazonaws.com"
+          ]
         }
       },
     ]

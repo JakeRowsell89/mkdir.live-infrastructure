@@ -11,9 +11,11 @@ resource "aws_cloudtrail" "log_put_objects" {
     data_resource {
       type = "AWS::S3::Object"
       values = [
-        "${aws_s3_bucket.uploads.arn}/*",
-        "${aws_s3_bucket.functions.arn}/*"
+        "${aws_s3_bucket.uploads.arn}/",
+        "${aws_s3_bucket.functions.arn}/"
       ]
     }
   }
+  cloud_watch_logs_role_arn  = aws_iam_role.cloudwatch_logs.arn
+  cloud_watch_logs_group_arn = "${aws_cloudwatch_log_group.s3_upload_file.arn}:*"
 }
