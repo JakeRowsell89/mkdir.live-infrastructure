@@ -14,13 +14,7 @@ resource "aws_apigatewayv2_integration" "get_signed_url" {
   integration_uri        = aws_lambda_function.get_presigned_url.invoke_arn
 }
 
-resource "aws_apigatewayv2_route" "get_signed_url" {
-  api_id    = aws_apigatewayv2_api.signed_s3_urls.id
-  route_key = "GET /"
-  target    = "integrations/${aws_apigatewayv2_integration.get_signed_url.id}"
-}
-
-resource "aws_apigatewayv2_stage" "get_signed_url" {
+resource "aws_apigatewayv2_stage" "get_signed_urls" {
   api_id      = aws_apigatewayv2_api.signed_s3_urls.id
   name        = "default"
   auto_deploy = true
@@ -28,6 +22,18 @@ resource "aws_apigatewayv2_stage" "get_signed_url" {
     destination_arn = aws_cloudwatch_log_group.api_gateway_get_presigned_url.arn
     format          = "{ \"integrationError\":\"$context.integration.error\", \"requestId\":\"$context.requestId\", \"ip\": \"$context.identity.sourceIp\", \"caller\":\"$context.identity.caller\", \"user\":\"$context.identity.user\", \"requestTime\":\"$context.requestTime\", \"httpMethod\":\"$context.httpMethod\", \"resourcePath\":\"$context.resourcePath\", \"status\":\"$context.status\", \"protocol\":\"$context.protocol\", \"responseLength\":\"$context.responseLength\", \"error\":\"$context.error.message\" }"
   }
+}
+
+resource "aws_apigatewayv2_route" "get_signed_url_static" {
+  api_id    = aws_apigatewayv2_api.signed_s3_urls.id
+  route_key = "GET /static"
+  target    = "integrations/${aws_apigatewayv2_integration.get_signed_url.id}"
+}
+
+resource "aws_apigatewayv2_route" "get_signed_url_function" {
+  api_id    = aws_apigatewayv2_api.signed_s3_urls.id
+  route_key = "GET /function"
+  target    = "integrations/${aws_apigatewayv2_integration.get_signed_url.id}"
 }
 
 resource "aws_api_gateway_account" "mkdir_live" {

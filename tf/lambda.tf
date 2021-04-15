@@ -26,6 +26,18 @@ resource "aws_lambda_function" "move_uploads" {
   handler          = "move-uploads/index.handler"
   source_code_hash = filebase64sha256("./lambdas/move-uploads.zip")
   runtime          = "nodejs14.x"
+  timeout          = 30
+  depends_on = [
+    aws_cloudwatch_log_group.lambda_move_uploads
+  ]
+}
+
+resource "aws_lambda_permission" "lambda_move_cloudwatch_trigger" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.move_uploads.function_name
+  principal     = "events.amazonaws.com"
+  #   source_arn    = "${aws_apigatewayv2_api.signed_s3_urls.arn}/*/*/*" NOT working, revisit
 }
 
 resource "aws_lambda_function" "create_lambdas" {
@@ -35,4 +47,12 @@ resource "aws_lambda_function" "create_lambdas" {
   handler          = "create-lambdas/index.handler"
   source_code_hash = filebase64sha256("./lambdas/create-lambdas.zip")
   runtime          = "nodejs14.x"
+}
+
+resource "aws_lambda_permission" "lambda_create_lambdas_cloudwatch_trigger" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.create_lambdas.function_name
+  principal     = "events.amazonaws.com"
+  #   source_arn    = "${aws_apigatewayv2_api.signed_s3_urls.arn}/*/*/*" NOT working, revisit
 }
