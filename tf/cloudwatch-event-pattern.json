@@ -10,7 +10,8 @@
       "requestParameters": {
         "bucketName": [
           "${bucket_name}"
-        ]
+        ],
+        "key": [{ "prefix": "${folder}" }]
       }
     },
     "detail-type": [

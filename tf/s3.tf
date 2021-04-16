@@ -14,7 +14,8 @@ resource "aws_s3_bucket" "uploads" {
             "Effect": "Allow",
             "Principal": {
                 "AWS": [
-                    "${aws_iam_role.lambda_move_uploads.arn}"
+                    "${aws_iam_role.lambda_move_static_site.arn}",
+                    "${aws_iam_role.lambda_move_function.arn}"
                 ]
             },
             "Action": [
@@ -47,7 +48,7 @@ resource "aws_s3_bucket" "functions" {
             "Effect": "Allow",
             "Principal": {
                 "AWS": [
-                    "${aws_iam_role.lambda_move_uploads.arn}"
+                    "${aws_iam_role.lambda_move_function.arn}"
                 ]
             },
             "Action": [
@@ -72,7 +73,7 @@ resource "aws_s3_bucket" "static" {
             "Effect": "Allow",
             "Principal": {
                 "AWS": [
-                    "${aws_iam_role.lambda_move_uploads.arn}"
+                    "${aws_iam_role.lambda_move_static_site.arn}"
                 ]
             },
             "Action": [
@@ -81,10 +82,25 @@ resource "aws_s3_bucket" "static" {
             "Resource": [
                 "arn:aws:s3:::mkdir.live-static/*"
             ]
+        },
+        {
+            "Sid": "PublicRead",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": [
+                "s3:GetObject",
+                "s3:GetObjectVersion"
+            ],
+            "Resource": "arn:aws:s3:::mkdir.live-static/*"
         }
     ]
 }
 POLICY
+}
+
+resource "aws_s3_bucket_public_access_block" "static" {
+  bucket = aws_s3_bucket.static.id
+  ignore_public_acls = true
 }
 
 resource "aws_s3_bucket" "cloudtrail" {

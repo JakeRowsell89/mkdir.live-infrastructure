@@ -19,23 +19,44 @@ resource "aws_lambda_permission" "allow_api_gateway" {
   #   source_arn    = "${aws_apigatewayv2_api.signed_s3_urls.arn}/*/*/*" NOT working, revisit
 }
 
-resource "aws_lambda_function" "move_uploads" {
-  filename         = "./lambdas/move-uploads.zip"
-  function_name    = "move-uploads"
-  role             = aws_iam_role.lambda_move_uploads.arn
-  handler          = "move-uploads/index.handler"
-  source_code_hash = filebase64sha256("./lambdas/move-uploads.zip")
+resource "aws_lambda_function" "move_static_site" {
+  filename         = "./lambdas/move-static-site.zip"
+  function_name    = "move-static-site"
+  role             = aws_iam_role.lambda_move_static_site.arn
+  handler          = "move-static-site/index.handler"
+  source_code_hash = filebase64sha256("./lambdas/move-static-site.zip")
   runtime          = "nodejs14.x"
   timeout          = 30
   depends_on = [
-    aws_cloudwatch_log_group.lambda_move_uploads
+    aws_cloudwatch_log_group.lambda_move_static_site
   ]
 }
 
-resource "aws_lambda_permission" "lambda_move_cloudwatch_trigger" {
+resource "aws_lambda_function" "move_function" {
+  filename         = "./lambdas/move-function.zip"
+  function_name    = "move-function"
+  role             = aws_iam_role.lambda_move_function.arn
+  handler          = "move-function/index.handler"
+  source_code_hash = filebase64sha256("./lambdas/move-function.zip")
+  runtime          = "nodejs14.x"
+  timeout          = 30
+  depends_on = [
+    aws_cloudwatch_log_group.lambda_move_function
+  ]
+}
+
+resource "aws_lambda_permission" "lambda_move_static_site_cloudwatch_trigger" {
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.move_uploads.function_name
+  function_name = aws_lambda_function.move_static_site.function_name
+  principal     = "events.amazonaws.com"
+  #   source_arn    = "${aws_apigatewayv2_api.signed_s3_urls.arn}/*/*/*" NOT working, revisit
+}
+
+resource "aws_lambda_permission" "lambda_move_function_cloudwatch_trigger" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.move_function.function_name
   principal     = "events.amazonaws.com"
   #   source_arn    = "${aws_apigatewayv2_api.signed_s3_urls.arn}/*/*/*" NOT working, revisit
 }

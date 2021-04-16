@@ -3,7 +3,7 @@ exports.handler = async (event) => {
     AWS.config.update({ region: 'eu-west-2' })
     const s3 = new AWS.S3()
     const Key = event.detail.requestParameters.key
-    const Bucket = Key.startsWith('static') ? 'mkdir.live-static' : 'mkdir.live-functions'
+    const Bucket = 'mkdir.live-functions'
     try {
         const data = await s3.getObject({
             Bucket: event.detail.requestParameters.bucketName,
@@ -12,7 +12,7 @@ exports.handler = async (event) => {
         console.log('Key received ', Key,  'Bucket decided ', Bucket)
         await s3.putObject({
             Bucket,
-            Key: Key.replace(/(static|functions)\//, ''),
+            Key: Key.replace(/(static|function)\//, ''),
             Body: data.Body
         }).promise()
     } catch (e) {

@@ -1,4 +1,4 @@
-resource "aws_iam_role" "lambda_move_uploads" {
+resource "aws_iam_role" "lambda_move_static_site" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -14,9 +14,68 @@ resource "aws_iam_role" "lambda_move_uploads" {
   })
 }
 
-resource "aws_iam_role_policy" "lambda_move_uploads" {
-  name = "lambda_move_uploads"
-  role = aws_iam_role.lambda_move_uploads.id
+resource "aws_iam_role_policy" "lambda_move_static_site" {
+  name = "lambda-move-static-site"
+  role = aws_iam_role.lambda_move_static_site.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = "s3:GetObject"
+        Effect   = "Allow"
+        Sid      = ""
+        Resource = "arn:aws:s3:::mkdir.live-uploads"
+      },
+      {
+        Action = "s3:PutObject"
+        Effect = "Allow"
+        Sid    = ""
+        Resource = [
+          "arn:aws:s3:::mkdir.live-functions",
+          "arn:aws:s3:::mkdir.live-static"
+        ]
+      },
+      {
+        "Effect" = "Allow"
+        "Action" = [
+          "ec2:CreateNetworkInterface",
+          "ec2:DeleteNetworkInterface",
+          "ec2:DescribeNetworkInterface"
+        ],
+        "Resource" = "*"
+      },
+      {
+        "Action" = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        "Resource" = "arn:aws:logs:*:*:*"
+        "Effect"   = "Allow"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role" "lambda_move_function" {
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "lambda_move_function" {
+  name = "lambda-move-function"
+  role = aws_iam_role.lambda_move_function.id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -181,6 +240,38 @@ resource "aws_iam_role_policy" "cloudwatch_allow_logging" {
           "logs:FilterLogEvents",
         ]
         "Resource" = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role" "api_gateway_put_object" {
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "apigateway.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "api_gateway_put_object" {
+  name = "api-gateway-put-object"
+  role = aws_iam_role.api_gateway_put_object.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = "s3:PutObject"
+        Effect   = "Allow"
+        Sid      = ""
+        Resource = "arn:aws:s3:::mkdir.live-uploads"
       }
     ]
   })
