@@ -8,7 +8,7 @@ resource "aws_cloudwatch_event_rule" "trigger_on_static_site_upload" {
 resource "aws_cloudwatch_event_rule" "trigger_on_function_upload" {
   name = "mkdir.live-upload-function"
 
-  event_pattern = templatefile("./cloudwatch-event-pattern.json", { bucket_name = aws_s3_bucket.uploads.bucket, folder = "function" })
+  event_pattern = templatefile("./cloudwatch-event-pattern.json", { bucket_name = aws_s3_bucket.uploads.bucket, folder = "functions" })
 }
 
 resource "aws_cloudwatch_event_target" "lambda_move_static_site" {

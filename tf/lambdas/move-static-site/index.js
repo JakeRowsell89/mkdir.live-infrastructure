@@ -28,7 +28,7 @@ exports.handler = async (event) => {
             Bucket: event.detail.requestParameters.bucketName,
             Key,
         }).promise()
-        console.log('Key received ', Key,  'Bucket decided ', Bucket)
+        const folder = Key.replace(/^static\//, '').replace(/\/[^\/]*$/, '') // remove static/ from the front and the last slash onwards
         await new Promise((resolve, reject) => {
             const allPromises = []
             yauzl.fromBuffer(data.Body, {lazyEntries: true}, (err, zipfile) => {
@@ -36,26 +36,21 @@ exports.handler = async (event) => {
                 zipfile.readEntry();
                 zipfile.on("entry", function (entry) {
                     if (/\/$/.test(entry.fileName)) {
-                        // Directory file names end with '/'.
-                        // Note that entires for directories themselves are optional.
-                        // An entry's fileName implicitly requires its parent directories to exist.
+                        // Skip directories, ending with '/'
                         zipfile.readEntry();
                     } else {
-                        console.log('file entry.....')
-                        // file entry
                         zipfile.openReadStream(entry, function (err, readStream) {
                             if (err) reject(err);
                             let acc = ''
                             // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types#important_mime_types_for_web_developers
-
-                            const fileName = entry.fileName.replace(/$static\//, '')
+                            const fileName = entry.fileName.replace(/^[^\/]+\//, '') // replace `static/` and then remove wrapper folder name
                             const fileExtension = fileName.split('.').pop()
                             const ContentType = contentTypes[fileExtension] ? { ContentType: contentTypes[fileExtension] } : {}
                             
                             readStream.on("end", function() {
                                 allPromises.push(s3.putObject({
                                     Bucket,
-                                    Key: fileName,
+                                    Key: `${folder}/${fileName}`,
                                     Body: Buffer.from(acc),
                                     ...ContentType
                                 }).promise())

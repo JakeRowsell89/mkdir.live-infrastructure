@@ -12,7 +12,7 @@ exports.handler = async (event) => {
         console.log('Key received ', Key,  'Bucket decided ', Bucket)
         await s3.putObject({
             Bucket,
-            Key: Key.replace(/(static|function)\//, ''),
+            Key: Key.replace(/$functions\//, ''),
             Body: data.Body
         }).promise()
     } catch (e) {
