@@ -7,8 +7,8 @@ exports.handler = async (event) => {
 
     const folderName = uniqueNamesGenerator({
         dictionaries: [colors, animals, names],
-        separator: '-',
-    })
+        separator: '-'
+    }).toLowerCase()
     const destination = `https://s3.eu-west-2.amazonaws.com/mkdir.live-static/${folderName}/index.html`
 
     const presignedUrl = await s3.getSignedUrlPromise('putObject', {
