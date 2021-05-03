@@ -39,3 +39,31 @@ resource "aws_apigatewayv2_route" "get_signed_url_function" {
 resource "aws_api_gateway_account" "mkdir_live" {
   cloudwatch_role_arn = aws_iam_role.cloudwatch_logs.arn
 }
+
+# resource "aws_api_gateway_rest_api" "signed_upload" {
+#   name = "signed-upload"
+# }
+
+# resource "aws_api_gateway_resource" "signed_upload" {
+#   parent_id   = aws_api_gateway_rest_api.signed_upload.root_resource_id
+#   path_part   = "{key}"
+#   rest_api_id = aws_api_gateway_rest_api.signed_upload.id
+# }
+
+# resource "aws_api_gateway_method" "put_object" {
+#   authorization = "NONE"
+#   http_method   = "PUT"
+#   resource_id   = aws_api_gateway_resource.signed_upload.id
+#   rest_api_id   = aws_api_gateway_rest_api.signed_upload.id
+# }
+
+# resource "aws_api_gateway_integration" "put_object" {
+#   rest_api_id             = aws_api_gateway_rest_api.signed_upload.id
+#   resource_id             = aws_api_gateway_resource.signed_upload.id
+#   http_method             = "PUT"
+#   integration_http_method = "PUT"
+#   type                    = "AWS"
+#   credentials             = aws_iam_role.api_gateway_put_object.arn
+#   uri                     = "arn:aws:apigateway:eu-west-2:s3:path/mkdir.live-uploads/{key}"
+#   #   uri = "mkdir.live-uploads/{key}"
+# }

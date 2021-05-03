@@ -34,5 +34,5 @@ override.tf.json
 vpc.tf
 
 .DS_STORE
-**/*.zip
+**/**/*.zip
 **/node_modules

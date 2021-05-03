@@ -244,6 +244,43 @@ resource "aws_iam_role_policy" "cloudwatch_allow_logging" {
     ]
   })
 }
+# resource "aws_iam_role" "cloudwatch_trigger_lambdas" {
+#   assume_role_policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Action = "sts:AssumeRole"
+#         Effect = "Allow"
+#         Sid    = ""
+#         Principal = {
+#           Service = [
+#             "cloudwatch.amazonaws.com"
+#           ]
+#         }
+#       },
+#     ]
+#   })
+# }
+
+# resource "aws_iam_role_policy" "cloudwatch_trigger_lambdas" {
+#   name = "cloudwatch-trigger-lambdas"
+#   role = aws_iam_role.cloudwatch_trigger_lambdas.id
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         "Effect" = "Allow"
+#         "Action" = [
+#             "lambda:InvokeFunction"
+#         ]
+#         "Resource" = [
+#             aws_lambda_function.move_uploads.arn,
+#             aws_lambda_function.create_lambdas.arn
+#         ]
+#       }
+#     ]
+#   })
+# }
 
 resource "aws_iam_role" "api_gateway_put_object" {
   assume_role_policy = jsonencode({
