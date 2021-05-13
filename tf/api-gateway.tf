@@ -16,7 +16,7 @@ resource "aws_apigatewayv2_integration" "get_signed_url" {
 
 resource "aws_apigatewayv2_stage" "get_signed_urls" {
   api_id      = aws_apigatewayv2_api.signed_s3_urls.id
-  name        = "default"
+  name        = "$default"
   auto_deploy = true
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.api_gateway_get_presigned_url.arn
@@ -38,4 +38,20 @@ resource "aws_apigatewayv2_route" "get_signed_url_function" {
 
 resource "aws_api_gateway_account" "mkdir_live" {
   cloudwatch_role_arn = aws_iam_role.cloudwatch_logs.arn
+}
+
+resource "aws_apigatewayv2_api" "access_uploaded_functions" {
+  name          = "access-uploaded-functions"
+  protocol_type = "HTTP"
+}
+
+resource "aws_apigatewayv2_stage" "default" {
+  api_id      = aws_apigatewayv2_api.access_uploaded_functions.id
+  name        = "$default"
+  auto_deploy = true
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api_gateway_access_uploaded_functions.arn
+    format          = "{ \"integrationError\":\"$context.integration.error\", \"requestId\":\"$context.requestId\", \"ip\": \"$context.identity.sourceIp\", \"caller\":\"$context.identity.caller\", \"user\":\"$context.identity.user\", \"requestTime\":\"$context.requestTime\", \"httpMethod\":\"$context.httpMethod\", \"resourcePath\":\"$context.resourcePath\", \"status\":\"$context.status\", \"protocol\":\"$context.protocol\", \"responseLength\":\"$context.responseLength\", \"error\":\"$context.error.message\" }"
+  }
 }

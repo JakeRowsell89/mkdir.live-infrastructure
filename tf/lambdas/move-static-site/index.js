@@ -1,13 +1,13 @@
 exports.handler = async (event) => {
-    const AWS = require('aws-sdk')
-    const yauzl = require('yauzl')
+    const AWS = require('aws-sdk') // This package is not my work
+    const yauzl = require('yauzl') // This package is not my work
 
     AWS.config.update({ region: 'eu-west-2' })
 
     const s3 = new AWS.S3()
     const Key = event.detail.requestParameters.key
     const Bucket = 'mkdir.live-static'
-    const contentTypes = {
+    const contentTypes = { // Without a Content-Type, files will be downloaded instead of shown in browser
         html: 'text/html',
         css: 'text/css',
         js: 'text/javascript',
@@ -31,6 +31,10 @@ exports.handler = async (event) => {
         const folder = Key.replace(/^static\//, '').replace(/\/[^\/]*$/, '') // remove static/ from the front and the last slash onwards
         await new Promise((resolve, reject) => {
             const allPromises = []
+            /* 
+                The callback below (lines 35-70) are largely taken from the yauzl documentation
+                https://github.com/thejoshwolfe/yauzl#usage
+            */
             yauzl.fromBuffer(data.Body, {lazyEntries: true}, (err, zipfile) => {
                 if (err) reject(err)
                 zipfile.readEntry();
@@ -65,7 +69,7 @@ exports.handler = async (event) => {
                         });
                     }
                 });
-                zipfile.on('end', () => {Promise.all(allPromises).then(resolve).catch(reject) })
+                zipfile.on('end', () => Promise.all(allPromises).then(resolve).catch(reject))
             })
         })
     } catch (e) {

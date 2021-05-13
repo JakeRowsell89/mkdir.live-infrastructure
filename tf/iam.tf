@@ -198,7 +198,95 @@ resource "aws_iam_role_policy" "lambda_create_lambdas" {
           "ec2:DescribeNetworkInterface"
         ],
         "Resource" = "*"
+      },
+      {
+        "Action" = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        "Resource" = "arn:aws:logs:*:*:*"
+        "Effect"   = "Allow"
+      },
+      {
+        "Action" = [
+          "lambda:CreateFunction",
+          "lambda:AddPermission"
+        ]
+        "Resource" = "*"
+        "Effect"   = "Allow"
+      },
+      {
+        "Action" = [
+          "iam:PassRole"
+        ]
+        "Resource" = "arn:aws:iam::236744700502:role/lambda-uploads"
+        "Effect"   = "Allow"
+      },
+      {
+        Action   = "s3:GetObject"
+        Effect   = "Allow"
+        Resource = "arn:aws:s3:::mkdir.live-functions/*"
+      },
+      {
+        Action   = "apigateway:POST"
+        Effect   = "Allow"
+        Resource = "${aws_apigatewayv2_api.access_uploaded_functions.arn}/*" // Define API in Terraform
       }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "lambda_uploads" {
+  name = "lambda-uploads"
+  role = aws_iam_role.lambda_uploads.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        "Effect" = "Allow"
+        "Action" = [
+          "ec2:CreateNetworkInterface",
+          "ec2:DeleteNetworkInterface",
+          "ec2:DescribeNetworkInterface"
+        ],
+        "Resource" = "*"
+      },
+      {
+        "Action" = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        "Resource" = "arn:aws:logs:*:*:*"
+        "Effect"   = "Allow"
+      },
+      {
+        "Action" = [
+          "lambda:InvokeFunction"
+        ]
+        "Resource" = "arn:aws:lambda:eu-west-2:236744700502:function:*"
+        "Effect"   = "Allow"
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role" "lambda_uploads" {
+  name = "lambda-uploads"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = [
+            "lambda.amazonaws.com"
+          ]
+        }
+      },
     ]
   })
 }

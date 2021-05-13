@@ -39,7 +39,7 @@ resource "aws_lambda_function" "move_function" {
   handler          = "move-function/index.handler"
   source_code_hash = filebase64sha256("./lambdas/move-function.zip")
   runtime          = "nodejs14.x"
-  timeout          = 30
+  timeout          = 15
   depends_on = [
     aws_cloudwatch_log_group.lambda_move_function
   ]
@@ -68,6 +68,7 @@ resource "aws_lambda_function" "create_lambdas" {
   handler          = "create-lambdas/index.handler"
   source_code_hash = filebase64sha256("./lambdas/create-lambdas.zip")
   runtime          = "nodejs14.x"
+  timeout          = 15
 }
 
 resource "aws_lambda_permission" "lambda_create_lambdas_cloudwatch_trigger" {

@@ -1,5 +1,5 @@
 exports.handler = async (event) => {
-    const AWS = require('aws-sdk')
+    const AWS = require('aws-sdk') // This package is not my work
     AWS.config.update({ region: 'eu-west-2' })
     const s3 = new AWS.S3()
     const Key = event.detail.requestParameters.key
